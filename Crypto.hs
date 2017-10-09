@@ -18,19 +18,28 @@ via the aymmetric RSA.
 -------------------------------------------------------------------------------
 -- PART 1 : asymmetric encryption
 
+-- Given two integers m and n, gcd recursively computes their
+-- greatest common divisor
 gcd :: Int -> Int -> Int
-gcd m n = error "TODO: implement gcd"
+gcd m n 
+  | n == 0    = m
+  | otherwise = gcd n (m `mod` n) 
 
+-- The phi function computes the eauler totient function for a given m
 phi :: Int -> Int
-phi m = error "TODO: implement phi"
+--pre: m >= 0
+phi m
+  = length [x |  x <- [1 .. m], gcd x m == 1] 
 
 --
 -- Calculates (u, v, d) the gcd (d) and Bezout coefficients (u and v) 
 -- such that au + bv = d
 --
+-- Pre: a,b >= o
 extendedGCD :: Int -> Int -> ((Int, Int), Int)
-extendedGCD a b = error "TODO: implement extendedGCD"
-
+extendedGCD a b
+   | b == 0 = ((1,0),a) 
+   | otherwise extendedGCD b a `mod` b
 -- Inverse of a modulo m
 inverse :: Int -> Int -> Int
 inverse a m = error "TODO: implement inverse"
@@ -38,7 +47,13 @@ inverse a m = error "TODO: implement inverse"
 -- Calculates (a^k mod m)
 -- 
 modPow :: Int -> Int -> Int -> Int
-modPow a k m = error "TODO: implement modPow"
+modPow a k m
+  | k == 0 = 1 mod m
+  | even k    = ((amodm * amodm) `mod` m) ^ j `mod` m
+  | otherwise = ((a * ((amodm * amodm) `mod` m ) ^ j) `mod` m) `mod` m
+    where 
+      j  = k `div` 2 
+      amodm = a `mod` m
 
 -- Returns the smallest integer that is coprime with phi
 smallestCoPrimeOf :: Int -> Int
