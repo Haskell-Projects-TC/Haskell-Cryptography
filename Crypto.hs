@@ -53,7 +53,10 @@ inverse a m
     ((u, _), _) = extendedGCD a m
   
 -- Calculates (a^k mod m)
--- 
+--
+-- This function was a challenging one to come up with but eventually
+-- managed it. first started off not doing it recursively due to 
+-- the formulas given in the spec 
 modPow :: Int -> Int -> Int -> Int
 modPow a k m
   | k == 0    = 1 `mod` m
@@ -64,6 +67,11 @@ modPow a k m
       amm = a * a `mod` m
 
 -- Returns the smallest integer that is coprime with phi
+--
+-- Struggled for at least half an hour with this function as well
+-- since i just couldn't get my head around it unntil I looked in
+-- the course notes and realised i could use an accumulating 
+-- parameter
 smallestCoPrimeOf :: Int -> Int
 smallestCoPrimeOf phi
   = smallestCoPrimeOf' 2
@@ -76,19 +84,21 @@ smallestCoPrimeOf phi
 -- given two "large" distinct primes, p and q
 genKeys :: Int -> Int -> ((Int, Int), (Int, Int))
 genKeys p q
- = ((e, p * q), (d, p * q))
-  where
-    e = smallestCoPrimeOf p'q'  
-    d = inverse e p'q'
-    p'q' = (p - 1) * (q - 1)
+  = ((e, p * q), (d, p * q))
+    where
+      e = smallestCoPrimeOf p'q'  
+      d = inverse e p'q'
+      p'q' = (p - 1) * (q - 1)
     
 
 -- RSA encryption/decryption; (e, n) is the public key
 rsaEncrypt :: Int -> (Int, Int) -> Int
-rsaEncrypt m (e, n) = error "TODO: implement rsaEncrypt"
+rsaEncrypt m (e, n)
+  = modPow m e n
 
 rsaDecrypt :: Int -> (Int, Int) -> Int
-rsaDecrypt = error "TODO: implement rsaDecrypt"
+rsaDecrypt c (d,n )
+  = modPow c d n 
 
 
 -------------------------------------------------------------------------------
@@ -96,11 +106,12 @@ rsaDecrypt = error "TODO: implement rsaDecrypt"
 
 -- Returns position of a letter in the alphabet
 toInt :: Char -> Int
-toInt a = error "TODO: implement toInt"
+toInt a
+  = ord a - ord 'a'
 
 -- Returns the n^th letter
 toChar :: Int -> Char
-toChar n = error "TODO: implement toChar"
+toChar n = chr (n + ord 'a')
 
 -- "adds" two letters
 add :: Char -> Char -> Char
