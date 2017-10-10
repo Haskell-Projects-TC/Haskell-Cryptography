@@ -38,31 +38,50 @@ phi m
 -- Pre: a,b >= o
 extendedGCD :: Int -> Int -> ((Int, Int), Int)
 extendedGCD a b
-   | b == 0 = ((1,0),a) 
-   | otherwise extendedGCD b a `mod` b
+  | b == 0    = ((1,0),a) 
+  | otherwise = ((v',(u' - q * v')), d)
+    where
+      (q, r)  = quotRem a b
+      ((u', v'), d) = extendedGCD b r
+
 -- Inverse of a modulo m
 inverse :: Int -> Int -> Int
-inverse a m = error "TODO: implement inverse"
-
+inverse a m
+  | gcd a m == 1 = u `mod` m
+  | otherwise = error "there is no inverse!"
+    where
+    ((u, _), _) = extendedGCD a m
+  
 -- Calculates (a^k mod m)
 -- 
 modPow :: Int -> Int -> Int -> Int
 modPow a k m
-  | k == 0 = 1 mod m
-  | even k    = ((amodm * amodm) `mod` m) ^ j `mod` m
-  | otherwise = ((a * ((amodm * amodm) `mod` m ) ^ j) `mod` m) `mod` m
+  | k == 0    = 1 `mod` m
+  | even k    = modPow amm j m
+  | otherwise = a * (modPow amm j m) `mod` m
     where 
       j  = k `div` 2 
-      amodm = a `mod` m
+      amm = a * a `mod` m
 
 -- Returns the smallest integer that is coprime with phi
 smallestCoPrimeOf :: Int -> Int
-smallestCoPrimeOf phi = error "TODO: implement smallestCoPrimeOf"
-
+smallestCoPrimeOf phi
+  = smallestCoPrimeOf' 2
+    where
+      smallestCoPrimeOf' c
+        | gcd c phi == 1 = c
+        | otherwise      = smallestCoPrimeOf' (c + 1) 
+  
 -- Generates keys pairs (public, private) = ((e, n), (d, n))
 -- given two "large" distinct primes, p and q
 genKeys :: Int -> Int -> ((Int, Int), (Int, Int))
-genKeys p q = error "TODO: implement genKeys"
+genKeys p q
+ = ((e, p * q), (d, p * q))
+  where
+    e = smallestCoPrimeOf p'q'  
+    d = inverse e p'q'
+    p'q' = (p - 1) * (q - 1)
+    
 
 -- RSA encryption/decryption; (e, n) is the public key
 rsaEncrypt :: Int -> (Int, Int) -> Int
