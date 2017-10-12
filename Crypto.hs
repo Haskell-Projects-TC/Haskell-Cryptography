@@ -56,7 +56,9 @@ inverse a m
 --
 -- This function was a challenging one to come up with but eventually
 -- managed it. first started off not doing it recursively due to 
--- the formulas given in the spec 
+-- the formulas given in the spec
+-- this uses fermat's little theorem which is also used to proved RSA
+-- correctness 
 modPow :: Int -> Int -> Int -> Int
 modPow a k m
   | k == 0    = 1 `mod` m
@@ -111,15 +113,18 @@ toInt a
 
 -- Returns the n^th letter
 toChar :: Int -> Char
-toChar n = chr (n + ord 'a')
+toChar n 
+  = chr (n + ord 'a')
 
 -- "adds" two letters
 add :: Char -> Char -> Char
-add a b = error "TODO: implement add"
+add a b 
+  = toChar ((toInt a + toInt b) `mod` 26)
 
 -- "substracts" two letters
 substract :: Char -> Char -> Char
-substract a b = error "TODO: implement substract"
+substract a b 
+  = toChar ((toInt a - toInt b) `mod` 26)
 
 -- the next functions present
 -- 2 modes of operation for block ciphers : ECB and CBC
@@ -128,17 +133,30 @@ substract a b = error "TODO: implement substract"
 -- ecb (electronic codebook) with block size of a letter
 --
 ecbEncrypt :: Char -> String -> String
-ecbEncrypt key m = error "TODO: implement ecbEncrypt"
+ecbEncrypt key m 
+  = [ add x key | x <- m]
 
 ecbDecrypt :: Char -> String -> String
-ecbDecrypt key m = error "TODO: implement ecbDecrypt"
+ecbDecrypt key m 
+  = [substract x key | x <- m]
 
 -- cbc (cipherblock chaining) encryption with block size of a letter
 -- initialisation vector iv is a letter
 -- last argument is message m as a string
 --
 cbcEncrypt :: Char -> Char -> String -> String
-cbcEncrypt key iv m = error "TODO: implement cbcEncrypt"
+cbcEncrypt key iv "" 
+  = ""
+cbcEncrypt key iv (x : xs)
+  = y : cbcEncrypt key y xs 
+    where 
+      y = add key (add iv x)
 
 cbcDecrypt :: Char -> Char -> String -> String
-cbcDecrypt key iv m = error "TODO: implement cbcDecrypt"
+cbcDecrypt key iv ""
+  = ""
+cbcDecrypt key iv (x : xs)
+  = y' : cbcDecrypt key x xs
+    where
+      y = substract x key
+      y'= substract y iv
