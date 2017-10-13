@@ -20,6 +20,9 @@ via the aymmetric RSA.
 
 -- Given two integers m and n, gcd recursively computes their
 -- greatest common divisor
+--
+-- Added a test case for larger integers but couldn't take into account negatives
+-- 
 gcd :: Int -> Int -> Int
 gcd m n 
   | n == 0    = m
@@ -156,7 +159,6 @@ cbcDecrypt :: Char -> Char -> String -> String
 cbcDecrypt key iv ""
   = ""
 cbcDecrypt key iv (x : xs)
-  = y' : cbcDecrypt key x xs
+  = y : cbcDecrypt key x xs
     where
-      y = substract x key
-      y'= substract y iv
+      y= substract (substract x key) iv
