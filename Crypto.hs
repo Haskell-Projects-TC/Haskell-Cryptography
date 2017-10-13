@@ -21,8 +21,6 @@ via the aymmetric RSA.
 -- Given two integers m and n, gcd recursively computes their
 -- greatest common divisor
 --
--- Added a test case for larger integers but couldn't take into account negatives
--- 
 gcd :: Int -> Int -> Int
 gcd m n 
   | n == 0    = m
@@ -74,10 +72,11 @@ modPow a k m
 -- Returns the smallest integer that is coprime with phi
 --
 -- Struggled for at least half an hour with this function as well
--- since i just couldn't get my head around it unntil I looked in
+-- since I just couldn't get my head around it unntil I looked in
 -- the course notes and realised i could use an accumulating 
 -- parameter
 smallestCoPrimeOf :: Int -> Int
+-- Pre: c > 0
 smallestCoPrimeOf phi
   = smallestCoPrimeOf' 2
     where
@@ -87,6 +86,8 @@ smallestCoPrimeOf phi
   
 -- Generates keys pairs (public, private) = ((e, n), (d, n))
 -- given two "large" distinct primes, p and q
+-- This function seems to work if both inputs are either negative or 
+-- positive but not if one is negative and the other is positive
 genKeys :: Int -> Int -> ((Int, Int), (Int, Int))
 genKeys p q
   = ((e, p * q), (d, p * q))
@@ -97,6 +98,8 @@ genKeys p q
     
 
 -- RSA encryption/decryption; (e, n) is the public key
+-- When experimenting with testing, I noticed that a stack overflow occurs
+-- this is because is uses modPow which is stack recursive. 
 rsaEncrypt :: Int -> (Int, Int) -> Int
 rsaEncrypt m (e, n)
   = modPow m e n
@@ -109,10 +112,14 @@ rsaDecrypt c (d,n )
 -------------------------------------------------------------------------------
 -- PART 2 : symmetric encryption
 
+-- Please mark this section as though it was assessed
+
 -- Returns position of a letter in the alphabet
 toInt :: Char -> Int
 toInt a
-  = ord a - ord 'a'
+  | a >= 'a' && a <= 'z' = ord a - ord 'a'
+  | a >= 'A' && a <= 'Z' = ord a - ord 'A'
+  | otherwise            = error "you must input a letter!"
 
 -- Returns the n^th letter
 toChar :: Int -> Char
@@ -162,3 +169,4 @@ cbcDecrypt key iv (x : xs)
   = y : cbcDecrypt key x xs
     where
       y= substract (substract x key) iv
+
